@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append('../ht1632clib/python')
+from time import sleep
+from datetime import datetime
+import signal
 
+sys.path.append('../ht1632clib/python')
 from ht1632c import HT1632C
 from rotenc import RotEnc
-from time import *
-import signal
 
 if __name__ == "__main__":
 	# init display
@@ -24,22 +25,26 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGTERM, stop)
 	signal.signal(signal.SIGINT, stop)
 	
-	# display update
+	# display update function
 	def update():
-		#print("update")
 		disp.clear()
-		t = localtime()
-		s = strftime("%H:%M:%S")
-		disp.putstr(-1, 0, strftime("%H", t), disp.font7x8, 1)
-		disp.putstr(16, 0, strftime("%M", t), disp.font7x8, 1)
-		disp.putstr(33, 0, strftime("%S", t), disp.font7x8, 1)
+		t = datetime.now()
+		#print t
+		font = disp.font8x12
+		x = 0
+		x = disp.putstr(x, 0, t.strftime("%H"), font, 1) + 3
+		x = disp.putstr(x, 0, t.strftime("%M"), font, 1) + 3
+		x = disp.putstr(x, 0, t.strftime("%S"), font, 1)
 		disp.sendframe()
 	
+	# main loop
 	try:
 		while True:
+			# update display
 			update()
-			#t = time.localtime()
-			sleep(1.0)
+			# wait for next second
+			t = datetime.now()
+			sleep(1.0 - (t.microsecond / 1000000.0))
 	except SystemExit as e:
 		print(e.code)
 	
