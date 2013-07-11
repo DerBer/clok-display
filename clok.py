@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 from time import sleep
@@ -9,13 +10,17 @@ sys.path.append('../ht1632clib/python')
 from ht1632c import HT1632C
 from rotenc import RotEnc
 
+# display rotation (multiples of 90° clockwise)
+DISPLAY_ROTATION = 0
+
+# rotary encoder pins
 PIN_ROTENC_1   = 3
 PIN_ROTENC_2   = 4
 PIN_ROTENC_BTN = 2
 
 if __name__ == "__main__":
 	# init display
-	disp = HT1632C()
+	disp = HT1632C(DISPLAY_ROTATION)
 	disp.pwmValue = 7
 	disp.pwm(disp.pwmValue)
 	
