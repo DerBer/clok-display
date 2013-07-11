@@ -1,14 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import sys
+import signal
+import heapq
 from time import sleep
 from datetime import datetime
-import signal
+from datetime import timedelta
 
 sys.path.append('../ht1632clib/python')
 from ht1632c import HT1632C
 from rotenc import RotEnc
+
+sys.path.append('modules')
+from mod_time import TimeModule
+
+# Feature TODOs
+# - programs
+# - regions/widgets
+# - color/brightness schemes
+# - weather source
 
 # display rotation (multiples of 90° clockwise)
 DISPLAY_ROTATION = 0
@@ -38,31 +48,37 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGTERM, stop)
 	signal.signal(signal.SIGINT, stop)
 	
-	# display update function
-	def update():
-		disp.clear()
-		disp.plot(0, 0, 2); disp.plot(1, 0, 2); disp.plot(0, 1, 2)
-		disp.plot(63, 0, 2); disp.plot(62, 0, 2); disp.plot(63, 1, 2)
-		disp.plot(0, 15, 2); disp.plot(1, 15, 2); disp.plot(0, 14, 2)
-		disp.plot(63, 15, 2); disp.plot(62, 15, 2); disp.plot(63, 14, 2)
-		t = datetime.now()
-		#print t
-		font = disp.font8x12
-		y = 2
-		x = 5
-		x = disp.putstr(x, y, t.strftime("%H"), font, 1) + 4
-		x = disp.putstr(x, y, t.strftime("%M"), font, 1) + 4
-		x = disp.putstr(x, y, t.strftime("%S"), font, 1)
-		disp.sendframe()
+	screen = [
+		{ 'module': TimeModule(), 'x': 0, 'y': 0 }
+	]
 	
-	# main loop
+	# main loop, process module updates
 	try:
+		def update(moduleCfg, now):
+			# update module
+			module = moduleCfg['module']
+			x = moduleCfg['x']
+			y = moduleCfg['y']
+			module.update(disp, x, y)
+			
+			# schedule next
+			d = timedelta(seconds = module.interval)
+			heapq.heappush(events, (now + d, moduleCfg))
+		
+		events = []
+		now = datetime.now().replace(microsecond = 0) # (update at start of second)
+		for moduleCfg in screen:
+			update(moduleCfg, now)
+		
 		while True:
+			# next event
+			(nextTime, nextEvent) = heapq.heappop(events)
+			# wait
+			now = datetime.now()
+			if (nextTime > now):
+				sleep((nextTime - now).total_seconds())
 			# update display
-			update()
-			# wait for next second
-			t = datetime.now()
-			sleep(1.0 - (t.microsecond / 1000000.0))
+			update(nextEvent, nextTime)
 	except SystemExit as e:
 		print(e.code)
 	
