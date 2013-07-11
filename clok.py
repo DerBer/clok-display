@@ -9,15 +9,23 @@ sys.path.append('../ht1632clib/python')
 from ht1632c import HT1632C
 from rotenc import RotEnc
 
+PIN_ROTENC_1   = 3
+PIN_ROTENC_2   = 4
+PIN_ROTENC_BTN = 2
+
 if __name__ == "__main__":
 	# init display
 	disp = HT1632C()
-	disp.pwm(8)
+	disp.pwmValue = 7
+	disp.pwm(disp.pwmValue)
 	
 	# init rotary encoder
-	def cb(value):
-		print("cb", value)
-	rotenc = RotEnc(3, 4, 2, cb)
+	def rotencInput(value):
+		disp.pwmValue += value
+		if disp.pwmValue < 0: disp.pwmValue = 0
+		if disp.pwmValue > 15: disp.pwmValue = 15
+		disp.pwm(disp.pwmValue)
+	rotenc = RotEnc(PIN_ROTENC_1, PIN_ROTENC_2, PIN_ROTENC_BTN, rotencInput)
 	
 	# termination functions
 	def stop(signal, stack):
@@ -28,13 +36,18 @@ if __name__ == "__main__":
 	# display update function
 	def update():
 		disp.clear()
+		disp.plot(0, 0, 2); disp.plot(1, 0, 2); disp.plot(0, 1, 2)
+		disp.plot(63, 0, 2); disp.plot(62, 0, 2); disp.plot(63, 1, 2)
+		disp.plot(0, 15, 2); disp.plot(1, 15, 2); disp.plot(0, 14, 2)
+		disp.plot(63, 15, 2); disp.plot(62, 15, 2); disp.plot(63, 14, 2)
 		t = datetime.now()
 		#print t
 		font = disp.font8x12
-		x = 0
-		x = disp.putstr(x, 0, t.strftime("%H"), font, 1) + 3
-		x = disp.putstr(x, 0, t.strftime("%M"), font, 1) + 3
-		x = disp.putstr(x, 0, t.strftime("%S"), font, 1)
+		y = 2
+		x = 5
+		x = disp.putstr(x, y, t.strftime("%H"), font, 1) + 4
+		x = disp.putstr(x, y, t.strftime("%M"), font, 1) + 4
+		x = disp.putstr(x, y, t.strftime("%S"), font, 1)
 		disp.sendframe()
 	
 	# main loop
