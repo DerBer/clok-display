@@ -12,7 +12,9 @@ from ht1632c import HT1632C
 from rotenc import RotEnc
 
 sys.path.append('modules')
+sys.path.append('../python-openweathermap-api/package') # TODO why doesn't install work?
 from mod_time import TimeModule
+from mod_weather import WeatherModule
 
 # Feature TODOs
 # - programs
@@ -49,7 +51,8 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, stop)
 	
 	screen = [
-		{ 'module': TimeModule(), 'x': 0, 'y': 0 }
+		{ 'module': TimeModule(), 'x': 0, 'y': 0 },
+		{ 'module': WeatherModule('Darmstadt'), 'x': 48, 'y': 11 }
 	]
 	
 	# main loop, process module updates
