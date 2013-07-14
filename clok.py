@@ -3,6 +3,7 @@
 import sys
 import signal
 import heapq
+import thread
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
@@ -36,13 +37,20 @@ if __name__ == "__main__":
 	disp.pwmValue = 7
 	disp.pwm(disp.pwmValue)
 	
+	#print urlopen("http://vomber.de").read()
+	
 	# init rotary encoder
+	rotenc = RotEnc(PIN_ROTENC_1, PIN_ROTENC_2, PIN_ROTENC_BTN, None)
 	def rotencInput(value):
+		#print(value)
 		disp.pwmValue += value
 		if disp.pwmValue < 0: disp.pwmValue = 0
 		if disp.pwmValue > 15: disp.pwmValue = 15
 		disp.pwm(disp.pwmValue)
-	rotenc = RotEnc(PIN_ROTENC_1, PIN_ROTENC_2, PIN_ROTENC_BTN, rotencInput)
+	def rotencHandlerThread(re):
+		while True:
+			rotencInput(re.wait())
+	thread.start_new_thread(rotencHandlerThread, (rotenc,))
 	
 	# termination functions
 	def stop(signal, stack):

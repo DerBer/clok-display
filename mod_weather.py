@@ -16,12 +16,9 @@ class WeatherModule:
 			self.city = None
 	
 	def update(self, disp, x, y):
-		font = disp.font4x6
-		weather = self.owm.getcityweaterbyid(self.city)
-		print "%02.1f" % weather.getmaintempc()
-		#y = 2
-		#x = 5
-		x = disp.putstr(x, y, "%02.1f" % weather.getmaintempc(), font, 1, 0) + 4
-		#x = disp.putstr(x, y, t.strftime("%M"), font, 1, 0) + 4
-		#x = disp.putstr(x, y, t.strftime("%S"), font, 1, 0)
-		#disp.sendframe()
+		if self.city != None:
+			font = disp.font4x6
+			weather = self.owm.getcityweaterbyid(self.city)
+			print("%02.1f" % weather.getmaintempc())
+			x = disp.putstr(x, y, "%02.1f" % weather.getmaintempc(), font, 1, 0) + 4
+			disp.sendframe()

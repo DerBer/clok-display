@@ -53,6 +53,9 @@ do_start()
 # 	start-stop-daemon --start --quiet --pidfile $PIDFILE -d $DAEMON_DIR --exec $DAEMON --test > /dev/null \
 # 		|| return 1
 	start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile -d $DAEMON_DIR --exec $DAEMON -- $DAEMON_ARGS || return 2
+# 	start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile -d $DAEMON_DIR --exec /bin/bash \
+# 		-- -c "$DAEMON $DAEMON_ARGS > /var/log/clok.log 2>&1" \
+# 		|| return 2
 	return 0
 }
 
