@@ -14,7 +14,7 @@ from rotenc import RotEnc
 
 sys.path.append('modules')
 sys.path.append('../python-openweathermap-api/package') # TODO why doesn't install work?
-from mod_time import TimeModule
+from mod_clock import TimeModule
 from mod_weather import WeatherModule
 
 # Feature TODOs
@@ -22,6 +22,7 @@ from mod_weather import WeatherModule
 # - regions/widgets
 # - color/brightness schemes
 # - weather source
+# logging!?
 
 # display rotation (multiples of 90° clockwise)
 DISPLAY_ROTATION = 0
@@ -59,8 +60,8 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, stop)
 	
 	screen = [
-		{ 'module': TimeModule(), 'x': 0, 'y': 0 },
-		{ 'module': WeatherModule('Darmstadt'), 'x': 48, 'y': 11 }
+		{ 'module': TimeModule(disp.font7x8num), 'x': 0, 'y': 1, 'w': 46, 'h': 8  },
+		{ 'module': WeatherModule('Darmstadt', 'DE'), 'x': 48, 'y': 11, 'w': 16, 'h': 5  }
 	]
 	
 	# main loop, process module updates
@@ -70,7 +71,14 @@ if __name__ == "__main__":
 			module = moduleCfg['module']
 			x = moduleCfg['x']
 			y = moduleCfg['y']
-			module.update(disp, x, y)
+			w = moduleCfg['w']
+			h = moduleCfg['h']
+			disp.clip(x, y, x + w, y + h)
+			try:
+				module.update(disp, x, y, w, h)
+			except Exception as e:
+				print("Module update error: " + str(e))
+				
 			
 			# schedule next
 			d = timedelta(seconds = module.interval)
@@ -87,6 +95,8 @@ if __name__ == "__main__":
 			# wait
 			now = datetime.now()
 			if (nextTime > now):
+				# commit frame
+				disp.sendframe()
 				sleep((nextTime - now).total_seconds())
 			# update display
 			update(nextEvent, nextTime)
