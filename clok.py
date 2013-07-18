@@ -15,14 +15,14 @@ from rotenc import RotEnc
 sys.path.append('modules')
 sys.path.append('../python-openweathermap-api/package') # TODO why doesn't install work?
 from mod_clock import TimeModule
+from mod_clock import DateModule
+from mod_clock import SecondBarModule
 from mod_weather import WeatherModule
 
-# Feature TODOs
+# TODOs
 # - programs
-# - regions/widgets
 # - color/brightness schemes
-# - weather source
-# logging!?
+# - logging
 
 # display rotation (multiples of 90° clockwise)
 DISPLAY_ROTATION = 0
@@ -31,6 +31,11 @@ DISPLAY_ROTATION = 0
 PIN_ROTENC_1   = 3
 PIN_ROTENC_2   = 4
 PIN_ROTENC_BTN = 2
+
+COL_BLACK  = 0
+COL_GREEN  = 1
+COL_RED    = 2
+COL_ORANGE = 3
 
 if __name__ == "__main__":
 	# init display
@@ -60,8 +65,10 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, stop)
 	
 	screen = [
-		{ 'module': TimeModule(disp.font7x8num), 'x': 0, 'y': 1, 'w': 46, 'h': 8  },
-		{ 'module': WeatherModule('Darmstadt', 'DE'), 'x': 48, 'y': 11, 'w': 16, 'h': 5  }
+		{ 'module': TimeModule(COL_GREEN), 'x': -1, 'y': 0, 'w': 46, 'h': 8  },
+		{ 'module': SecondBarModule(COL_RED, COL_BLACK, 5, COL_ORANGE, 3), 'x': 0, 'y': 9, 'w': 64, 'h': 1  },
+		{ 'module': DateModule(COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
+		{ 'module': WeatherModule('Darmstadt', 'DE', COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  }
 	]
 	
 	# main loop, process module updates
@@ -78,7 +85,7 @@ if __name__ == "__main__":
 				module.update(disp, x, y, w, h)
 			except Exception as e:
 				print("Module update error: " + str(e))
-				
+				disp.line(x, y, x + w - 1, y + h - 1, 2)
 			
 			# schedule next
 			d = timedelta(seconds = module.interval)
