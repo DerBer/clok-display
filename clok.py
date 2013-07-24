@@ -4,6 +4,7 @@ import sys
 import signal
 import heapq
 import thread
+import math
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
@@ -21,7 +22,7 @@ from mod_weather import WeatherModule
 
 # TODOs
 # - programs
-# - color/brightness schemes
+# - color/brightness schemes (ht1632c colormap/palette)
 # - logging
 
 # display rotation (multiples of 90° clockwise)
@@ -40,7 +41,7 @@ COL_ORANGE = 3
 if __name__ == "__main__":
 	# init display
 	disp = HT1632C(DISPLAY_ROTATION)
-	disp.pwmValue = 7
+	disp.pwmValue = 4
 	disp.pwm(disp.pwmValue)
 	
 	#print urlopen("http://vomber.de").read()
@@ -87,9 +88,11 @@ if __name__ == "__main__":
 				print("Module update error: " + str(e))
 				disp.line(x, y, x + w - 1, y + h - 1, 2)
 			
-			# schedule next
-			d = timedelta(seconds = module.interval)
-			heapq.heappush(events, (now + d, moduleCfg))
+			# schedule next (skip intervals if necessary)
+			realNow = datetime.now()
+			d = module.interval
+			nextTime = now + timedelta(seconds = d * math.ceil((realNow - now).total_seconds() / d))
+			heapq.heappush(events, (nextTime, moduleCfg))
 		
 		events = []
 		now = datetime.now().replace(microsecond = 0) # (update at start of second)
