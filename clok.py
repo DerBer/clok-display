@@ -89,13 +89,13 @@ if __name__ == "__main__":
 				disp.line(x, y, x + w - 1, y + h - 1, 2)
 			
 			# schedule next (skip intervals if necessary)
-			realNow = datetime.now()
+			realNow = datetime.utcnow()
 			d = module.interval
 			nextTime = now + timedelta(seconds = d * math.ceil((realNow - now).total_seconds() / d))
 			heapq.heappush(events, (nextTime, moduleCfg))
 		
 		events = []
-		now = datetime.now().replace(microsecond = 0) # (update at start of second)
+		now = datetime.utcnow().replace(microsecond = 0) # (update at start of second)
 		for moduleCfg in screen:
 			update(moduleCfg, now)
 		
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 			# next event
 			(nextTime, nextEvent) = heapq.heappop(events)
 			# wait
-			now = datetime.now()
+			now = datetime.utcnow()
 			if (nextTime > now):
 				# commit frame
 				disp.sendframe()

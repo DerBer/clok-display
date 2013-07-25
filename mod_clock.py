@@ -12,7 +12,6 @@ class TimeModule:
 		self.col = col
 	
 	def update(self, disp, x, y, w, h):
-		#font = disp.font7x8num
 		t = datetime.now()
 		putsSpecialLarge(disp, x, y, t.strftime("%H:%M"), self.col, 0)
 		#x = disp.putstr(x, y, t.strftime("%H"), font, self.col, 0)
