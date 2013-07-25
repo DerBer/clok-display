@@ -8,12 +8,13 @@ class TimeModule:
 	# update interval (seconds)
 	interval = 1.0
 	
-	def __init__(self, col):
+	def __init__(self, font, col):
+		self.font = font
 		self.col = col
 	
 	def update(self, disp, x, y, w, h):
 		t = datetime.now()
-		putsSpecialLarge(disp, x, y, t.strftime("%H:%M"), self.col, 0)
+		putsSpecial(disp, self.font, x, y, t.strftime("%H:%M"), self.col, 0)
 		#x = disp.putstr(x, y, t.strftime("%H"), font, self.col, 0)
 		#disp.box(x + 1, y + 1, x + 2, y + 2, 1)
 		#disp.box(x + 1, y + 5, x + 2, y + 6, 1)
@@ -26,13 +27,14 @@ class DateModule:
 	# update interval (seconds)
 	interval = 1.0
 	
-	def __init__(self, col):
+	def __init__(self, font, col):
+		self.font = font
 		self.col = col
 	
 	def update(self, disp, x, y, w, h):
 		t = datetime.now()
 		s = DAY_NAME[t.weekday()] + " " + t.strftime("%d.%m.%Y")
-		putsSpecialSmall(disp, x, y, s, self.col, 0)
+		putsSpecial(disp, self.font, x, y, s, self.col, 0)
 
 
 class SecondBarModule:
@@ -58,32 +60,62 @@ class SecondBarModule:
 
 # helper functions
 
-def putsSpecialLarge(disp, x, y, s, col, bg):
-	font = disp.font7x8num
-	for c in s:
-		if c == '.':
-			disp.box(x + 1, y + 6, x + 2, y + 7, col)
-			x += 2
-		elif c == ':':
-			disp.box(x + 1, y + 1, x + 2, y + 2, col)
-			disp.box(x + 1, y + 5, x + 2, y + 6, col)
-			x += 3
-		else:
-			x = disp.putchar(x, y, c, font, col, bg)
+def putsSpecial(disp, font, x, y, s, col, bg):
+	fontH = disp.fontheight(font)
+	if (fontH <= 6): # small fonts
+		for c in s:
+			if c == ' ':
+				x += 1
+			elif c == '.':
+				disp.plot(x + 1, y + fontH - 1, col)
+				x += 2
+			elif c == ':':
+				disp.plot(x + 1, y + 1, col)
+				disp.plot(x + 1, y + fontH - 2, col)
+				x += 2
+			else:
+				x = disp.putchar(x, y, c, font, col, bg)
+	else: # large fonts
+		for c in s:
+			if c == ' ':
+				x += 2
+			elif c == '.':
+				disp.box(x + 1, y + fontH - 2, x + 2, y + fontH - 1, col)
+				x += 2
+			elif c == ':':
+				disp.box(x + 1, y + 1, x + 2, y + 2, col)
+				disp.box(x + 1, y + fontH - 3, x + 2, y + fontH - 2, col)
+				x += 3
+			else:
+				x = disp.putchar(x, y, c, font, col, bg)
 	return x
 
-def putsSpecialSmall(disp, x, y, s, col, bg):
-	font = disp.font4x5num
-	for c in s:
-		if c == ' ':
-			x += 1
-		elif c == '.':
-			disp.plot(x + 1, y + 4, col)
-			x += 2
-		elif c == ':':
-			disp.plot(x + 1, y + 1, col)
-			disp.plot(x + 1, y + 3, col)
-			x += 2
-		else:
-			x = disp.putchar(x, y, c, font, col, bg)
-	return x
+#def putsSpecialLarge(disp, x, y, s, col, bg):
+	#font = disp.font7x8num
+	#for c in s:
+		#if c == '.':
+			#disp.box(x + 1, y + 6, x + 2, y + 7, col)
+			#x += 2
+		#elif c == ':':
+			#disp.box(x + 1, y + 1, x + 2, y + 2, col)
+			#disp.box(x + 1, y + 5, x + 2, y + 6, col)
+			#x += 3
+		#else:
+			#x = disp.putchar(x, y, c, font, col, bg)
+	#return x
+
+#def putsSpecialSmall(disp, x, y, s, col, bg):
+	#font = disp.font4x5num
+	#for c in s:
+		#if c == ' ':
+			#x += 1
+		#elif c == '.':
+			#disp.plot(x + 1, y + 4, col)
+			#x += 2
+		#elif c == ':':
+			#disp.plot(x + 1, y + 1, col)
+			#disp.plot(x + 1, y + 3, col)
+			#x += 2
+		#else:
+			#x = disp.putchar(x, y, c, font, col, bg)
+	#return x

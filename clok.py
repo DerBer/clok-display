@@ -28,11 +28,16 @@ from mod_weather import WeatherModule
 # display rotation (multiples of 90° clockwise)
 DISPLAY_ROTATION = 0
 
+# location settings
+CITY = 'Münster'
+COUNTRY = 'DE'
+
 # rotary encoder pins
 PIN_ROTENC_1   = 3
 PIN_ROTENC_2   = 4
 PIN_ROTENC_BTN = 2
 
+# color codes
 COL_BLACK  = 0
 COL_GREEN  = 1
 COL_RED    = 2
@@ -66,10 +71,10 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, stop)
 	
 	screen = [
-		{ 'module': TimeModule(COL_GREEN), 'x': -1, 'y': 0, 'w': 46, 'h': 8  },
+		{ 'module': TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
 		{ 'module': SecondBarModule(COL_RED, COL_BLACK, 5, COL_ORANGE, 3), 'x': 0, 'y': 9, 'w': 64, 'h': 1  },
-		{ 'module': DateModule(COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
-		{ 'module': WeatherModule('Darmstadt', 'DE', COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  }
+		{ 'module': DateModule(disp.font4x5num, COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
+		{ 'module': WeatherModule(CITY, COUNTRY, COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  }
 	]
 	
 	# main loop, process module updates
