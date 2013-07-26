@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import signal
+import os
 import heapq
 import thread
 import math
@@ -14,14 +15,12 @@ from ht1632c import HT1632C
 from rotenc import RotEnc
 
 sys.path.append('modules')
-sys.path.append('../python-openweathermap-api/package') # TODO why doesn't install work?
 from mod_clock import TimeModule
 from mod_clock import DateModule
 from mod_clock import SecondBarModule
 from mod_weather import WeatherModule
 
 # TODOs
-# - programs
 # - color/brightness schemes (ht1632c colormap/palette)
 # - logging
 
@@ -43,39 +42,32 @@ COL_GREEN  = 1
 COL_RED    = 2
 COL_ORANGE = 3
 
-if __name__ == "__main__":
+SCREENS = [
+	[
+		{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
+		{ 'moduleFn': lambda disp: SecondBarModule(COL_RED, COL_BLACK, 5, COL_ORANGE, 3), 'x': 0, 'y': 9, 'w': 64, 'h': 1  },
+		{ 'moduleFn': lambda disp: DateModule(disp.font4x5num, COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
+		{ 'moduleFn': lambda disp: WeatherModule(CITY, COUNTRY, COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  }
+	],
+	[
+		{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  }
+	]
+]
+
+#class NextProgramException(Exception):
+    #pass
+
+CMD_EXIT = 0
+CMD_NEXTPROG = 1
+CMD_SETPWM = 2
+
+command = CMD_EXIT
+pwmValue = 4
+
+def showScreen(screenId):
 	# init display
 	disp = HT1632C(DISPLAY_ROTATION)
-	disp.pwmValue = 4
-	disp.pwm(disp.pwmValue)
-	
-	#print urlopen("http://vomber.de").read()
-	
-	# init rotary encoder
-	rotenc = RotEnc(PIN_ROTENC_1, PIN_ROTENC_2, PIN_ROTENC_BTN, None)
-	def rotencInput(value):
-		#print(value)
-		disp.pwmValue += value
-		if disp.pwmValue < 0: disp.pwmValue = 0
-		if disp.pwmValue > 15: disp.pwmValue = 15
-		disp.pwm(disp.pwmValue)
-	def rotencHandlerThread(re):
-		while True:
-			rotencInput(re.wait())
-	thread.start_new_thread(rotencHandlerThread, (rotenc,))
-	
-	# termination functions
-	def stop(signal, stack):
-		raise SystemExit('Exiting')
-	signal.signal(signal.SIGTERM, stop)
-	signal.signal(signal.SIGINT, stop)
-	
-	screen = [
-		{ 'module': TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
-		{ 'module': SecondBarModule(COL_RED, COL_BLACK, 5, COL_ORANGE, 3), 'x': 0, 'y': 9, 'w': 64, 'h': 1  },
-		{ 'module': DateModule(disp.font4x5num, COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
-		{ 'module': WeatherModule(CITY, COUNTRY, COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  }
-	]
+	disp.pwm(pwmValue)
 	
 	# main loop, process module updates
 	try:
@@ -99,10 +91,36 @@ if __name__ == "__main__":
 			nextTime = now + timedelta(seconds = d * math.ceil((realNow - now).total_seconds() / d))
 			heapq.heappush(events, (nextTime, moduleCfg))
 		
+		def close():
+			# turn off display
+			disp.clear()
+			disp.sendframe()
+			disp.close()
+			# unload modules
+			for moduleCfg in SCREENS[screenId]:
+				moduleCfg['module'] = None
+		
+		# init screen
 		events = []
 		now = datetime.utcnow().replace(microsecond = 0) # (update at start of second)
-		for moduleCfg in screen:
+		for moduleCfg in SCREENS[screenId]:
+			moduleCfg['module'] = moduleCfg['moduleFn'](disp)
 			update(moduleCfg, now)
+		
+		# command interrupt signal
+		def intr(signal, stack):
+			global command
+			#print("command: %d" % command)
+			# react on command
+			if command == CMD_EXIT:
+				raise SystemExit(0)
+			elif command == CMD_NEXTPROG:
+				command = CMD_EXIT
+				raise SystemExit(1)
+			if command == CMD_SETPWM:
+				disp.pwm(pwmValue)
+			command = CMD_EXIT
+		signal.signal(signal.SIGINT, intr)
 		
 		while True:
 			# next event
@@ -115,12 +133,52 @@ if __name__ == "__main__":
 				sleep((nextTime - now).total_seconds())
 			# update display
 			update(nextEvent, nextTime)
-	except SystemExit as e:
-		print(e.code)
 	
-	# turn off display
-	disp.clear()
-	disp.sendframe()
+	except SystemExit as e:
+		#print(e.code)
+		signal.signal(signal.SIGINT, signal.SIG_DFL)
+		close()
+		if e.code == 0:
+			print("Exiting.")
+			return -1
+		else:
+			nextScreen = (screenId + 1) % len(SCREENS)
+			print("Switching to screen %d" % nextScreen)
+			#command = CMD_EXIT
+			return nextScreen
+
+
+if __name__ == "__main__":
+	# termination functions
+	def stop(signal, stack):
+		raise SystemExit(0)
+	signal.signal(signal.SIGTERM, stop)
+	
+	# load GPIO
+	print("Loading GPIO SPI module")
+	os.system("gpio load spi")
+		
+	# init rotary encoder
+	rotenc = RotEnc(PIN_ROTENC_1, PIN_ROTENC_2, PIN_ROTENC_BTN, None)
+	def rotencInput(value):
+		global command
+		if value != 0:
+			global pwmValue
+			pwmValue += value
+			if pwmValue < 0: pwmValue = 0
+			if pwmValue > 15: pwmValue = 15
+			command = CMD_SETPWM
+		else:
+			command = CMD_NEXTPROG
+		thread.interrupt_main()
+	def rotencHandlerThread(re):
+		while True:
+			rotencInput(re.wait())
+	thread.start_new_thread(rotencHandlerThread, (rotenc,))
+	
+	screenId = 0
+	while screenId >= 0:
+		screenId = showScreen(screenId)
 	
 	print("Done.")
 	sys.exit(0)

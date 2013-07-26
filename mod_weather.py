@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append('../python-openweathermap-api/package')
 from pyowm import OpenWeatherMapApi
 
 class WeatherModule:
