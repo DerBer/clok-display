@@ -8,19 +8,14 @@ class TimeModule:
 	# update interval (seconds)
 	interval = 1.0
 	
-	def __init__(self, font, col):
+	def __init__(self, font, col, format = "%H:%M"):
 		self.font = font
 		self.col = col
+		self.format = format
 	
 	def update(self, disp, x, y, w, h):
 		t = datetime.now()
-		putsSpecial(disp, self.font, x, y, t.strftime("%H:%M"), self.col, 0)
-		#x = disp.putstr(x, y, t.strftime("%H"), font, self.col, 0)
-		#disp.box(x + 1, y + 1, x + 2, y + 2, 1)
-		#disp.box(x + 1, y + 5, x + 2, y + 6, 1)
-		#x += 3
-		#x = disp.putstr(x, y, t.strftime("%M"), font, self.col, 0)
-		#x = disp.putstr(x, y, t.strftime("%S"), font, 1, 0)
+		putsSpecial(disp, self.font, x, y, t.strftime(self.format), self.col, 0)
 
 
 class DateModule:
@@ -62,6 +57,7 @@ class SecondBarModule:
 
 def putsSpecial(disp, font, x, y, s, col, bg):
 	fontH = disp.fontheight(font)
+	fontW = disp.fontwidth(font)
 	if (fontH <= 6): # small fonts
 		for c in s:
 			if c == ' ':
@@ -83,9 +79,11 @@ def putsSpecial(disp, font, x, y, s, col, bg):
 				disp.box(x + 1, y + fontH - 2, x + 2, y + fontH - 1, col)
 				x += 2
 			elif c == ':':
-				disp.box(x + 1, y + 1, x + 2, y + 2, col)
-				disp.box(x + 1, y + fontH - 3, x + 2, y + fontH - 2, col)
-				x += 3
+				vpos = fontH / 5
+				x += fontW / 10
+				disp.box(x + 1, y + vpos, x + 2, y + vpos + 1, col)
+				disp.box(x + 1, y + fontH - vpos - 2, x + 2, y + fontH - vpos - 1, col)
+				x += 3 + fontW / 10
 			else:
 				x = disp.putchar(x, y, c, font, col, bg)
 	return x
