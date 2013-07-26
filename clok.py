@@ -79,9 +79,6 @@ SCREENS = [
 	},
 ]
 
-#class NextProgramException(Exception):
-    #pass
-
 CMD_EXIT = 0
 CMD_NEXTPROG = 1
 CMD_SETPWM = 2

@@ -87,33 +87,3 @@ def putsSpecial(disp, font, x, y, s, col, bg):
 			else:
 				x = disp.putchar(x, y, c, font, col, bg)
 	return x
-
-#def putsSpecialLarge(disp, x, y, s, col, bg):
-	#font = disp.font7x8num
-	#for c in s:
-		#if c == '.':
-			#disp.box(x + 1, y + 6, x + 2, y + 7, col)
-			#x += 2
-		#elif c == ':':
-			#disp.box(x + 1, y + 1, x + 2, y + 2, col)
-			#disp.box(x + 1, y + 5, x + 2, y + 6, col)
-			#x += 3
-		#else:
-			#x = disp.putchar(x, y, c, font, col, bg)
-	#return x
-
-#def putsSpecialSmall(disp, x, y, s, col, bg):
-	#font = disp.font4x5num
-	#for c in s:
-		#if c == ' ':
-			#x += 1
-		#elif c == '.':
-			#disp.plot(x + 1, y + 4, col)
-			#x += 2
-		#elif c == ':':
-			#disp.plot(x + 1, y + 1, col)
-			#disp.plot(x + 1, y + 3, col)
-			#x += 2
-		#else:
-			#x = disp.putchar(x, y, c, font, col, bg)
-	#return x
