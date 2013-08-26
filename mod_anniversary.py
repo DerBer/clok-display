@@ -19,11 +19,15 @@ COL_RED    = 2
 COL_ORANGE = 3
 COL_TRANSPARENT = 0xff
 
+# The two lines below identify mod_anniversary.
+CALENDAR_CLIENT_ID = '1067073042023.apps.googleusercontent.com'
+CALENDAR_CLIENT_SECRET = 'fi41sk2FvNk8Y9Zv9VMiBYlw'
+
 class AnniversaryModule:
 	# update interval (seconds)
 	interval = 0.1
 	
-	def __init__(self, font, col, inverse_speed, client_id, client_secret, calendars):
+	def __init__(self, font, col, inverse_speed, calendars):
 		self.font = font
 		self.col = col
 		self.format = format
@@ -41,7 +45,7 @@ class AnniversaryModule:
 		print "mod_anniversary: updating string."
 		self.strlist = list()
 		scope = 'https://www.googleapis.com/auth/calendar'
-		flow = OAuth2WebServerFlow(self.client_id, self.client_secret, scope)
+		flow = OAuth2WebServerFlow(CALENDAR_CLIENT_ID, CALENDAR_CLIENT_SECRET, scope)
 		storage = Storage('mod_anniversary_credentials.dat')
 		credentials = storage.get()
 		if credentials is None or credentials.invalid:
