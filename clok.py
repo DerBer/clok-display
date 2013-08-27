@@ -50,6 +50,9 @@ CALENDARS = [
   }
 ]
 
+# Locales should be set so that weekdays are displayed correctly
+locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+
 # rotary encoder pins
 PIN_ROTENC_1   = 3
 PIN_ROTENC_2   = 4
