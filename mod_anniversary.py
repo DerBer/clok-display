@@ -6,6 +6,8 @@ from datetime import datetime
 from datetime import date
 from datetime import timedelta
 
+from bisect import insort
+
 from apiclient.discovery import build
 from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError
@@ -31,8 +33,6 @@ class AnniversaryModule:
 		self.font = font
 		self.col = col
 		self.format = format
-		self.client_id = client_id
-		self.client_secret = client_secret
 		self.calendars = calendars
 		self.updated = date.today() - timedelta(days = 1);
 		self.inverse_speed = inverse_speed
@@ -42,8 +42,9 @@ class AnniversaryModule:
 		if self.updated == date.today():
 			return
 		self.updated = date.today();
-		print "mod_anniversary: updating string."
+		print "mod_anniversary: Updating string"
 		self.strlist = list()
+		eventlist = list()
 		scope = 'https://www.googleapis.com/auth/calendar'
 		flow = OAuth2WebServerFlow(CALENDAR_CLIENT_ID, CALENDAR_CLIENT_SECRET, scope)
 		storage = Storage('mod_anniversary_credentials.dat')
@@ -60,40 +61,54 @@ class AnniversaryModule:
 # loop over days to sort
 			try:
 				today = date.today()
-				for i in range(8):
-					if (i == 0):
-						color = COL_RED
-					elif (i < 4):
-						color = COL_ORANGE
-					else:
-						color = COL_GREEN
-					day_str = (today + timedelta(days = i)).strftime('%Y-%m-%d')
-					next_day_str = (today + timedelta(days = i+1)).strftime('%Y-%m-%d')
-					for calendar in self.calendars:
-						print "mod_anniversary: calendar "+ calendar['name']
-						request = service.events().list(calendarId=calendar['id'], timeMin=day_str + 'T00:00:00Z', timeMax=next_day_str + 'T00:00:00Z')
-						# Loop until all pages have been processed.
-						while request != None:
-							# Get the next page.
-							response = request.execute()
-							# Accessing the response like a dict object with an 'items' key
-							# returns a list of item objects (events).
-							for event in response.get('items', []):
-								# The event object is a dict object with a 'summary' key.
-								print "mod_anniversary: entry "+ event.get('summary', '')
-								self.strlist.append([event.get('summary', '') + ' (', self.font, color, COL_BLACK])
-								self.strlist.append([calendar['name'], calendar['font'](disp) , color, COL_BLACK])
-								self.strlist.append([')', self.font, color, COL_BLACK])
-								self.strlist.append([', ', self.font, color, COL_BLACK])
-#								print repr(event.get('description','')) + '\n'
-								# Get the next request object by passing the previous request object to
-								# the list_next method.
-							request = service.events().list_next(request, response)
+				today_str = today.strftime('%Y-%m-%d')
+				soon_str = (today + timedelta(days = 7)).strftime('%Y-%m-%d')
+				for calendar in self.calendars:
+					print "mod_anniversary: Calendar "+ calendar['name']
+					request = service.events().list(calendarId=calendar['id'], timeMin=today_str + 'T00:00:00Z', timeMax=soon_str + 'T00:00:00Z')
+					# Loop until all pages have been processed.
+					while request != None:
+						response = request.execute()
+
+						for event in response.get('items', []):
+							print "mod_anniversary: Entry "+ event.get('summary', '')
+							eventstrlist = list()
+							when_str = event.get('start', '')['date']
+							when = date(int(when_str[0:4]),int(when_str[5:7]), int(when_str[8:10]))
+							time_left = when - today
+
+							if (time_left == timedelta(days = 0)):
+								color = COL_RED
+								weekday = ''
+							elif (time_left < timedelta(days = 4)):
+								color = COL_ORANGE
+								weekday = ', ' + when.strftime('%a')
+							else:
+								color = COL_GREEN
+								weekday = ', ' + when.strftime('%a')
+
+							try:
+								year = int(event.get('description', '0'))
+							except ValueError:
+								year = 0
+							if (0 < year and year <= today.year):
+								anniversary = ', '+str(today.year - year) + '.'
+							else:
+								anniversary = ''
+
+							eventstrlist.append([event.get('summary', '') + ' (', self.font, color, COL_BLACK])
+							eventstrlist.append([calendar['name'], calendar['font'](disp) , color, COL_BLACK])
+							eventstrlist.append([anniversary + weekday + ')', self.font, color, COL_BLACK])
+							eventstrlist.append([', ', self.font, color, COL_BLACK])
+							insort(eventlist,[when,eventstrlist])
+						request = service.events().list_next(request, response)
 			except AccessTokenRefreshError:
-				print ('The credentials have been revoked or expired.')
-		self.textwidth = 0
+				print ('mod_anniversary: The credentials have been revoked or expired.')
+		for when, eventstrlist in eventlist:
+			self.strlist.extend(eventstrlist)
 		self.strlist.pop()
-		sys.stdout.write("mod_anniversary: string is \"")
+		self.textwidth = 0
+		sys.stdout.write("mod_anniversary: String is \"")
 		for [s,f,c,b] in self.strlist:
 			self.textwidth += disp.strwidth(s,f)
 			sys.stdout.write(s)
