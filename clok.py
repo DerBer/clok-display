@@ -28,6 +28,31 @@ from mod_weather import WeatherModule
 CITY = 'Münster'
 COUNTRY = 'DE'
 
+# calendar settings
+# Note: you will need a file 'mod_anniversary_credentials.dat' that
+# can be created using an external script by logging into your google
+# account and permitting mod_anniversary access to your calendar.
+# The module also needs the google calendar api to be installed.
+# This can usually be done by running
+#
+#   easy_install --upgrade google-api-python-client
+
+CALENDARS = [
+  {
+    'name' : '*',
+    'id' : 'someid@group.calendar.google.com',
+    'font' : (lambda disp: disp.font4x6)
+  },
+  {
+    'name' : 'Jahrestag',
+    'id' : 'someotherid@group.calendar.google.com',
+    'font' : (lambda disp: disp.font4x6)
+  }
+]
+
+# Locales should be set so that weekdays are displayed correctly
+locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+
 # rotary encoder pins
 PIN_ROTENC_1   = 3
 PIN_ROTENC_2   = 4
@@ -49,6 +74,14 @@ SCREENS = [
 			{ 'moduleFn': lambda disp: SecondBarModule(COL_RED, COL_BLACK, 5, COL_ORANGE, 3), 'x': 0, 'y': 9, 'w': 64, 'h': 1  },
 			{ 'moduleFn': lambda disp: DateModule(disp.font4x5num, COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
 			{ 'moduleFn': lambda disp: WeatherModule(CITY, COUNTRY, COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  },
+		]
+	},
+	{
+		'rotation': 0,
+		# screen configuration
+		'screen': [
+			{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
+			{ 'moduleFn': lambda disp: AnniversaryModule(disp.font4x6, COL_GREEN, 100, CALENDARS), 'x': 0, 'y': 10, 'w': 64, 'h': 6  },
 		]
 	},
 	{
