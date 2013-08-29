@@ -17,8 +17,11 @@ from rotenc import RotEnc
 sys.path.append('modules')
 from mod_clock import TimeModule
 from mod_clock import DateModule
+from mod_clock import DateModuleVertical
 from mod_clock import SecondBarModule
 from mod_weather import WeatherModule
+from mod_weather import WeatherModuleColored
+from mod_anniversary import AnniversaryModule
 
 # TODOs
 # - color/brightness schemes (ht1632c colormap/palette)
@@ -80,7 +83,9 @@ SCREENS = [
 		'rotation': 0,
 		# screen configuration
 		'screen': [
-			{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
+			{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 31, 'h': 8  },
+			{ 'moduleFn': lambda disp: DateModuleVertical(disp.font3x4num, COL_GREEN), 'x': 0, 'y': 0, 'w': 16, 'h': 10  },
+			{ 'moduleFn': lambda disp: WeatherModuleColored(CITY, COUNTRY), 'x': 47, 'y': 0, 'w': 17, 'h': 5  },
 			{ 'moduleFn': lambda disp: AnniversaryModule(disp.font4x6, COL_GREEN, 100, CALENDARS), 'x': 0, 'y': 10, 'w': 64, 'h': 6  },
 		]
 	},
