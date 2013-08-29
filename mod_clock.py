@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from datetime import date
 
 DAY_NAME = ("MO", "DI", "MI", "DO", "FR", "SA", "SO")
 
@@ -30,6 +31,23 @@ class DateModule:
 		t = datetime.now()
 		s = DAY_NAME[t.weekday()] + " " + t.strftime("%d.%m.%Y")
 		putsSpecial(disp, self.font, x, y, s, self.col, 0)
+
+class DateModuleVertical:
+	# update interval (seconds)
+	interval = 10.0
+	
+	def __init__(self, font, col):
+		self.font = font
+		self.col = col
+	
+	def update(self, disp, x, y, w, h):
+		t = date.today()
+		s1 = DAY_NAME[t.weekday()]
+		s2 = t.strftime("%d")
+		s3 = t.strftime("%m")
+		newx = disp.putstr_metric(x, y, s1, self.font, self.col, 0)
+		disp.putstr_metric(newx, y, s2, self.font, self.col, 0)
+		disp.putstr_metric(newx, y + 1 + disp.fontheight(self.font), s3, self.font, self.col, 0)
 
 
 class SecondBarModule:
