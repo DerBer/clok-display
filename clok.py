@@ -6,6 +6,7 @@ import os
 import heapq
 import thread
 import math
+import locale
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
