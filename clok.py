@@ -32,6 +32,9 @@ from mod_anniversary import AnniversaryModule
 CITY = 'Münster'
 COUNTRY = 'DE'
 
+# display settings
+NUM_PANELS = 2
+
 # calendar settings
 # Note: you will need a file 'mod_anniversary_credentials.dat' that
 # can be created using an external script by logging into your google
@@ -130,7 +133,7 @@ def showScreen(screenId):
 	screen = SCREENS[screenId]['screen']
 	
 	# init display
-	disp = HT1632C(rotation)
+	disp = HT1632C(NUM_PANELS, rotation)
 	disp.pwm(pwmValue)
 	
 	# main loop, process module updates
