@@ -6,6 +6,7 @@ import os
 import heapq
 import thread
 import math
+import locale
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
@@ -17,8 +18,11 @@ from rotenc import RotEnc
 sys.path.append('modules')
 from mod_clock import TimeModule
 from mod_clock import DateModule
+from mod_clock import DateModuleVertical
 from mod_clock import SecondBarModule
 from mod_weather import WeatherModule
+from mod_weather import WeatherModuleColored
+from mod_anniversary import AnniversaryModule
 
 # TODOs
 # - color/brightness schemes (ht1632c colormap/palette)
@@ -27,6 +31,9 @@ from mod_weather import WeatherModule
 # location settings
 CITY = 'Münster'
 COUNTRY = 'DE'
+
+# display settings
+NUM_PANELS = 2
 
 # calendar settings
 # Note: you will need a file 'mod_anniversary_credentials.dat' that
@@ -80,7 +87,9 @@ SCREENS = [
 		'rotation': 0,
 		# screen configuration
 		'screen': [
-			{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
+			{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 31, 'h': 8  },
+			{ 'moduleFn': lambda disp: DateModuleVertical(disp.font3x4num, COL_GREEN), 'x': 0, 'y': 0, 'w': 16, 'h': 10  },
+			{ 'moduleFn': lambda disp: WeatherModuleColored(CITY, COUNTRY), 'x': 47, 'y': 0, 'w': 17, 'h': 5  },
 			{ 'moduleFn': lambda disp: AnniversaryModule(disp.font4x6, COL_GREEN, 100, CALENDARS), 'x': 0, 'y': 10, 'w': 64, 'h': 6  },
 		]
 	},
@@ -124,7 +133,7 @@ def showScreen(screenId):
 	screen = SCREENS[screenId]['screen']
 	
 	# init display
-	disp = HT1632C(rotation)
+	disp = HT1632C(NUM_PANELS, rotation)
 	disp.pwm(pwmValue)
 	
 	# main loop, process module updates

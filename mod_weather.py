@@ -29,8 +29,8 @@ class WeatherModule:
 		font = disp.font4x5num
 		if self.city != None:
 			weather = self.owm.getcityweaterbyid(self.city)
-			print("Current temp: %02.1f°C" % weather.getmaintempc())
-			putsSpecial(disp, x, y, "%02.1f^" % weather.getmaintempc(), font, self.col, 0)
+			print("Current temp: %.1f°C" % weather.getmaintempc())
+			putsSpecial(disp, x, y, "%4.1f^" % weather.getmaintempc(), font, self.col, 0)
 			
 class WeatherModuleColored:
 	# update interval (seconds)
