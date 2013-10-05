@@ -106,7 +106,8 @@ class AnniversaryModule:
 				print ('mod_anniversary: The credentials have been revoked or expired.')
 		for when, eventstrlist in eventlist:
 			self.strlist.extend(eventstrlist)
-		self.strlist.pop()
+		if self.strlist:
+			self.strlist.pop()
 		self.textwidth = 0
 		sys.stdout.write("mod_anniversary: String is \"")
 		for [s,f,c,b] in self.strlist:
