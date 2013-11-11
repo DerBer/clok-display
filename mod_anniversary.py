@@ -71,7 +71,8 @@ class AnniversaryModule:
 						response = request.execute()
 
 						for event in response.get('items', []):
-							print "mod_anniversary: Entry "+ event.get('summary', '')
+							name = event.get('summary','')
+							print "mod_anniversary: Entry "+ name.encode('latin-1')
 							eventstrlist = list()
 							when_str = event.get('start', '')['date']
 							when = date(int(when_str[0:4]),int(when_str[5:7]), int(when_str[8:10]))
@@ -96,7 +97,7 @@ class AnniversaryModule:
 							else:
 								anniversary = ''
 
-							eventstrlist.append([event.get('summary', '') + ' (', self.font, color, COL_BLACK])
+							eventstrlist.append([name + ' (', self.font, color, COL_BLACK])
 							eventstrlist.append([calendar['name'], calendar['font'](disp) , color, COL_BLACK])
 							eventstrlist.append([anniversary + weekday + ')', self.font, color, COL_BLACK])
 							eventstrlist.append([', ', self.font, color, COL_BLACK])
@@ -112,7 +113,7 @@ class AnniversaryModule:
 		sys.stdout.write("mod_anniversary: String is \"")
 		for [s,f,c,b] in self.strlist:
 			self.textwidth += disp.strwidth(s,f)
-			sys.stdout.write(s)
+			sys.stdout.write(s.encode('latin-1'))
 		print "\""
 		self.runstrlist = self.strlist[:]
 		self.runstrlist.append(['-', self.font, COL_GREEN, COL_BLACK])
