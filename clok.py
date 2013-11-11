@@ -200,6 +200,7 @@ def showScreen(screenId):
 				sleep((nextTime - now).total_seconds())
 			# update display
 			update(nextEvent, nextTime)
+                        sys.stdout.flush()
 	
 	except SystemExit as e:
 		#print(e.code)
