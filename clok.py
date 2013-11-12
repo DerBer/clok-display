@@ -145,7 +145,11 @@ def showScreen(screenId):
 			y = moduleCfg['y']
 			w = moduleCfg['w']
 			h = moduleCfg['h']
+			# set clip region
 			disp.clip(x, y, x + w, y + h)
+			# clear region
+			disp.box(x, y, x + w, y + h, 0)
+			# module update with failure handling
 			try:
 				module.update(disp, x, y, w, h)
 			except Exception as e:
@@ -189,6 +193,7 @@ def showScreen(screenId):
 			command = CMD_EXIT
 		signal.signal(signal.SIGINT, intr)
 		
+		# main loop
 		while True:
 			# next event
 			(nextTime, nextEvent) = heapq.heappop(events)
@@ -200,7 +205,7 @@ def showScreen(screenId):
 				sleep((nextTime - now).total_seconds())
 			# update display
 			update(nextEvent, nextTime)
-                        sys.stdout.flush()
+			sys.stdout.flush()
 	
 	except SystemExit as e:
 		#print(e.code)
