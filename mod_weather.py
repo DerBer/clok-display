@@ -53,17 +53,17 @@ class WeatherModuleColored:
 	def update(self, disp, x, y, w, h):
 		font = disp.font4x5num
 		if self.city != None:
-                        try:
-                                weather = self.owm.getcityweaterbyid(self.city)
+			try:
+				weather = self.owm.getcityweaterbyid(self.city)
 				temp = weather.getmaintempc()
-                                print("Current temp: %.1f°C" % temp)
+				print("Current temp: %.1f°C" % temp)
 				if (temp < 18):
 					putsSpecial(disp, x, y, "%4.1f^" % temp, font, COL_GREEN, 0)
 				elif (temp < 25):
 					putsSpecial(disp, x, y, "%4.1f^" % temp, font, COL_ORANGE, 0)
 				else:
 					putsSpecial(disp, x, y, "%4.1f^" % temp, font, COL_RED, 0)
-                        except:
+			except:
                                 print("Error: could not get temperature")
 
 
