@@ -4,6 +4,12 @@ from datetime import date
 
 DAY_NAME = ("MO", "DI", "MI", "DO", "FR", "SA", "SO")
 
+# color codes
+COL_BLACK  = 0
+COL_GREEN  = 1
+COL_RED    = 2
+COL_ORANGE = 3
+COL_TRANSPARENT = 0xff
 
 class TimeModule:
 	# update interval (seconds)
@@ -45,6 +51,7 @@ class DateModuleVertical:
 		s1 = DAY_NAME[t.weekday()]
 		s2 = t.strftime("%d")
 		s3 = t.strftime("%m")
+		disp.box(x, y, x + w - 1, y + h - 1, COL_BLACK)
 		newx = disp.putstr_metric(x, y, s1, self.font, self.col, 0)
 		disp.putstr_metric(newx, y, s2, self.font, self.col, 0)
 		disp.putstr_metric(newx, y + 1 + disp.fontheight(self.font), s3, self.font, self.col, 0)

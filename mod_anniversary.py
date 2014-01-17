@@ -65,7 +65,7 @@ class AnniversaryModule:
 				soon_str = (today + timedelta(days = 7)).strftime('%Y-%m-%d')
 				for calendar in self.calendars:
 					print "mod_anniversary: Calendar "+ calendar['name']
-					request = service.events().list(calendarId=calendar['id'], timeMin=today_str + 'T00:00:00Z', timeMax=soon_str + 'T00:00:00Z')
+					request = service.events().list(calendarId=calendar['id'], timeMin=today_str + 'T00:00:00Z', timeMax=soon_str + 'T00:00:00Z', singleEvents = True)
 					# Loop until all pages have been processed.
 					while request != None:
 						response = request.execute()
