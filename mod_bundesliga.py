@@ -12,6 +12,7 @@ MATCH_STATUS_RUNNING = 1
 MATCH_STATUS_BREAK = 2
 MATCH_STATUS_FINISHED = 3
 MATCH_STATUS_NOT_YET_STARTED = 4
+MATCH_STATUS_UNKNOWN = 0xff
 
 # color codes
 COL_BLACK  = 0
@@ -22,6 +23,7 @@ COL_TRANSPARENT = 0xff
 
 # mapping match status to color code
 color_mapping = { MATCH_STATUS_RUNNING : COL_RED, MATCH_STATUS_BREAK : COL_ORANGE, MATCH_STATUS_FINISHED : COL_GREEN, MATCH_STATUS_NOT_YET_STARTED : COL_GREEN }
+status_mapping = { 'FIRSTHALF' : MATCH_STATUS_RUNNING, 'SECONDHALF' : MATCH_STATUS_RUNNING, 'BREAK' : MATCH_STATUS_BREAK, 'PRE' : MATCH_STATUS_NOT_YET_STARTED, 'FIN' : MATCH_STATUS_FINISHED}
 
 class BundesligaModule:
         # update interval (seconds)
@@ -93,14 +95,7 @@ class BundesligaModule:
                                         else:
                                                 result[2] = team.find('NAME_3').text
                                                 result[3] = int(team.find('FULLTIME').text)
-                                if match.get('currentstatus') == 'FIRSTHALF':
-                                        result[4] = MATCH_STATUS_RUNNNG
-                                elif match.get('currentstatus') == 'FIN':
-                                        result[4] = MATCH_STATUS_FINISHED
-                                elif match.get('currentstatus') == 'BREAK':
-                                        result[4] = MATCH_STATUS_BREAK
-                                elif match.get('currentstatus') == 'PRE':
-                                        result[4] = MATCH_STATUS_NOT_YET_STARTED
+                                result[4] = status_mapping.get(match.get('currentstatus'),MATCH_STATUS_UNKNOWN)
                                 match_list.append(tuple(result))
                 self.updated = datetime.datetime.now()
                 match_list.sort(key=(lambda x: x[4]))
@@ -110,7 +105,7 @@ class BundesligaModule:
                 if self.updated < datetime.datetime.now() - datetime.timedelta(seconds = 30):
                         self.init_match_list()
                 current_match = self.match_list[(getMillisecondsSince1970() % (9 * self.time_per_match)) // self.time_per_match]
-                disp.putstr_metric(x, y, '{0} {1} : {3} {2}'.format(*current_match), self.font, color_mapping[current_match[4]], COL_BLACK)
+                disp.putstr_metric(x, y, '{0} {1} : {3} {2}'.format(*current_match) + (' ' * 10), self.font, color_mapping.get(current_match[4],COL_GREEN), COL_BLACK)
 
 # helper functions
 
@@ -121,6 +116,7 @@ def fetch_xml_data(host, path):
         if response.status != 200:
                 print('Fehler %s' % response.status)
                 return None
+#        response = open('matchday.xml')
         xmldata = response.read()
         root = ET.fromstring(xmldata)
         return root
