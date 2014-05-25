@@ -31,7 +31,7 @@ class WeatherModule:
 			try:
 				weather = self.owm.getcityweaterbyid(self.city)
 				temp = weather.getmaintempc()
-				print("Current temp: %.1f°C" % temp)
+				print("Current temp: %4.1f°C" % temp)
 				putsSpecial(disp, x, y, "%4.1f^" % temp, font, self.col, 0)
 			except:
 				print("Error: could not get temperature")
@@ -56,7 +56,7 @@ class WeatherModuleColored:
 			try:
 				weather = self.owm.getcityweaterbyid(self.city)
 				temp = weather.getmaintempc()
-				print("Current temp: %.1f°C" % temp)
+				print("Current temp: %4.1f°C" % temp)
 				if (temp < 18):
 					putsSpecial(disp, x, y, "%4.1f^" % temp, font, COL_GREEN, 0)
 				elif (temp < 25):
