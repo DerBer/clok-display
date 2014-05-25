@@ -52,7 +52,7 @@ SCREENS = [
 			{ 'moduleFn': lambda disp: TimeModule(disp.font7x8num, COL_GREEN), 'x': 16, 'y': 0, 'w': 46, 'h': 8  },
 			{ 'moduleFn': lambda disp: SecondBarModule(COL_RED, COL_BLACK, 5, COL_ORANGE, 3), 'x': 0, 'y': 9, 'w': 64, 'h': 1  },
 			{ 'moduleFn': lambda disp: DateModule(disp.font4x5num, COL_GREEN), 'x': -1, 'y': 11, 'w': 46, 'h': 5  },
-			{ 'moduleFn': lambda disp: WeatherModule(CITY, COUNTRY, COL_AUTO), 'x': 47, 'y': 11, 'w': 17, 'h': 5  },
+			{ 'moduleFn': lambda disp: WeatherModule(CITY, COUNTRY, COL_ORANGE), 'x': 47, 'y': 11, 'w': 17, 'h': 5  },
 		]
 	},
 	{
