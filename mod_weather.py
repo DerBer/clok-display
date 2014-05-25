@@ -23,24 +23,23 @@ class WeatherModule:
 	
 	def update(self, disp, x, y, w, h):
 		font = disp.font4x5num
-		if self.city != None:
-			try:
-				observation = self.owm.weather_at(self.city)
-				temp = observation.get_weather().get_temperature('celsius')['temp']
-				print("Current temp: %4.1f°C" % temp)
-				if (self.col == COL_AUTO):
-					if (temp < 18):
-						col = COL_GREEN
-					elif (temp < 25):
-						col = COL_ORANGE
-					else:
-						col = COL_RED
+		try:
+			observation = self.owm.weather_at(self.city)
+			temp = observation.get_weather().get_temperature('celsius')['temp']
+			print("Current temp: %4.1f°C" % temp)
+			if (self.col == COL_AUTO):
+				if (temp < 18):
+					col = COL_GREEN
+				elif (temp < 25):
+					col = COL_ORANGE
 				else:
-					col = self.col
-				putsSpecial(disp, x, y, "%4.1f^" % temp, font, col, 0)
-			except Exception as ex:
-				print("Error: could not get temperature: " + str(ex))
-			
+					col = COL_RED
+			else:
+				col = self.col
+			putsSpecial(disp, x, y, "%4.1f^" % temp, font, col, 0)
+		except Exception as ex:
+			print("Error: could not get temperature: " + str(ex))
+
 class WeatherModuleColored(WeatherModule):
 	def __init__(self, cityName, countryCode):
 		WeatherModule.__init__(self, cityName, countryCode, COL_AUTO)
