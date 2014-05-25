@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('../python-openweathermap-api/package')
-from pyowm import OpenWeatherMapApi
+sys.path.append('../pyowm')
+import pyowm
 
 # color codes
 COL_BLACK  = 0
@@ -18,21 +18,15 @@ class WeatherModule:
 	
 	def __init__(self, cityName, countryCode, col):
 		self.col = col
-		self.owm = OpenWeatherMapApi()
-		try:
-			cities = self.owm.getcitybycitycountrycode(cityName, None, countryCode)
-			self.city = cities[0].identifier if cities else None
-			print("OWM city ID for \"%s\" (%s): %d" % (cityName, countryCode, self.city))
-		except:
-			print("Error: could not get city \"%s\" (%s)" % (cityName, countryCode))
-			self.city = None
+		self.owm = owm = pyowm.OWM()
+		self.city = cityName + "," + countryCode
 	
 	def update(self, disp, x, y, w, h):
 		font = disp.font4x5num
 		if self.city != None:
 			try:
-				weather = self.owm.getcityweaterbyid(self.city)
-				temp = weather.getmaintempc()
+				observation = self.owm.weather_at(self.city)
+				temp = observation.get_weather().get_temperature('celsius')['temp']
 				print("Current temp: %4.1f°C" % temp)
 				if (self.col == COL_AUTO):
 					if (temp < 18):
@@ -44,8 +38,8 @@ class WeatherModule:
 				else:
 					col = self.col
 				putsSpecial(disp, x, y, "%4.1f^" % temp, font, col, 0)
-			except:
-				print("Error: could not get temperature")
+			except Exception as ex:
+				print("Error: could not get temperature: " + str(ex))
 			
 class WeatherModuleColored(WeatherModule):
 	def __init__(self, cityName, countryCode):
