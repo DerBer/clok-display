@@ -56,6 +56,36 @@ class DateModuleVertical:
 		disp.putstr_metric(newx, y, s2, self.font, self.col, 0)
 		disp.putstr_metric(newx, y + 1 + disp.fontheight(self.font), s3, self.font, self.col, 0)
 
+class DateModuleMetric:
+	# update interval (seconds)
+	interval = 10.0
+	
+	def __init__(self, font, col):
+		self.font = font
+		self.col = col
+	
+	def update(self, disp, x, y, w, h):
+		t = datetime.now()
+		s = DAY_NAME[t.weekday()] + " " + t.strftime("%d.%m.%Y")
+		disp.putstr_metric(x, y, s, self.font, self.col, 0)
+
+class DateModuleFullVertical:
+	# update interval (seconds)
+	interval = 10.0
+	
+	def __init__(self, font, col):
+		self.font = font
+		self.col = col
+	
+	def update(self, disp, x, y, w, h):
+		t = date.today()
+		s1 = DAY_NAME[t.weekday()]
+		s2 = t.strftime("%d")
+		s3 = t.strftime("%m")
+		disp.box(x, y, x + w - 1, y + h - 1, COL_BLACK)
+		disp.putstr_metric(x, y, s1, self.font, self.col, 0)
+		disp.putstr_metric(x, y + 1 + disp.fontheight(self.font), s2, self.font, self.col, 0)
+		disp.putstr_metric(x, y + 2 + 2*disp.fontheight(self.font), s3, self.font, self.col, 0)
 
 class SecondBarModule:
 	# update interval (seconds)
