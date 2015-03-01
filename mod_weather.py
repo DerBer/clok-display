@@ -16,17 +16,21 @@ class WeatherModule:
 	# update interval (seconds)
 	interval = 900.0
 	
-	def __init__(self, cityName, countryCode, col):
+	def __init__(self, cityName, countryCode, col, font = None):
 		self.col = col
+		self.font = font
 		self.owm = owm = pyowm.OWM()
 		self.city = cityName + "," + countryCode
 	
 	def update(self, disp, x, y, w, h):
-		font = disp.font4x5num
+		if self.font == None:
+			font = disp.font4x5num
+		else:
+			font = self.font
 		try:
-			observation = self.owm.weather_at(self.city)
+			observation = self.owm.weather_at_place(self.city)
 			temp = observation.get_weather().get_temperature('celsius')['temp']
-			print("Current temp: %4.1f°C" % temp)
+			print("Current temp: %2.1f°C" % temp)
 			if (self.col == COL_AUTO):
 				if (temp < 18):
 					col = COL_GREEN
@@ -36,7 +40,7 @@ class WeatherModule:
 					col = COL_RED
 			else:
 				col = self.col
-			putsSpecial(disp, x, y, "%4.1f^" % temp, font, col, 0)
+			putsSpecial(disp, x, y, "%2.1f^" % temp, font, col, 0)
 		except Exception as ex:
 			print("Error: could not get temperature: " + str(ex))
 
