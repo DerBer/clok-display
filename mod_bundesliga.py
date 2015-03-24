@@ -50,7 +50,6 @@ class BundesligaModule:
         def init_match_day(self):
                 # Determine (guess) the current season
                 today = datetime.date.today()
-                self.updated_match_day = today
                 if (today.month < 7):
                         baseyear = today.year - 1
                 else:
@@ -63,6 +62,8 @@ class BundesligaModule:
                         while (max >= min):
                                 mid = (min + max) // 2
                                 xmlroot = fetch_xml_data(provider['host'], provider['path'] %(self.season,mid))
+                                if xmlroot == None:
+                                        continue
                                 for fixture in xmlroot.findall('FIXTURE'):
                                         start = datetime.date(*map(int,fixture.get('START').split('-')))
                                         end = datetime.date(*map(int,fixture.get('END').split('-')))
@@ -81,7 +82,10 @@ class BundesligaModule:
                                 print('No match day, next one is %s' %min)
                                 self.match_day[provno] = min
                                 self.current_matches[provno] = False
-                                return min
+                                self.updated_match_day = today
+                                continue
+                self.updated_match_day = today
+
         
         def init_match_list(self):
                 if self.updated_match_day != datetime.date.today():
@@ -91,6 +95,8 @@ class BundesligaModule:
                 match_list = []
                 for (provno,provider) in enumerate(data_providers):
                         xmlroot = fetch_xml_data(provider['host'],provider['path'] % (self.season, self.match_day[provno]))
+                        if xmlroot == None:
+                                continue
                         for fixture in xmlroot.findall('FIXTURE'):
                                 for match in fixture.findall('MATCH'):
                                         result=['',0,'',0,0]
@@ -106,11 +112,12 @@ class BundesligaModule:
                 self.updated = datetime.datetime.now()
                 match_list.sort(key=(lambda x: x[4]))
                 self.match_list = match_list
+		print "Match list: %s" % self.match_list
 
         def update(self, disp, x, y, w, h):
                 if self.updated < datetime.datetime.now() - datetime.timedelta(seconds = 30):
                         self.init_match_list()
-                current_match = self.match_list[(getMillisecondsSince1970() % (9 * self.time_per_match)) // self.time_per_match]
+                current_match = self.match_list[(getMillisecondsSince1970() % (len(self.match_list) * self.time_per_match)) // self.time_per_match]
                 disp.putstr_metric(x, y, u'{0} {1} : {3} {2} '.format(*current_match) + (' ' * 10), self.font, color_mapping.get(current_match[4],COL_GREEN), COL_BLACK)
 
 # helper functions
@@ -120,7 +127,7 @@ def fetch_xml_data(host, path):
         connection.request('GET',path)
         response = connection.getresponse()
         if response.status != 200:
-                print('Fehler %s' % response.status)
+                print('Fehler %s when trying to fetch %s' % (response.status, host+path))
                 return None
         xmldata = response.read()
         root = ET.fromstring(xmldata)
